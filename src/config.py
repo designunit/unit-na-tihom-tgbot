@@ -2,6 +2,7 @@ import logging
 import os
 
 from dotenv import load_dotenv
+from configparser import ConfigParser
 
 
 if os.path.isfile(".env"):
@@ -22,3 +23,8 @@ LOGGER = logging.getLogger(__name__)
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 if not BOT_TOKEN:
     raise Exception("BOT_TOKEN not found in .env file")
+
+
+def mongo_config(filename='database.ini', section='mongo'):
+
+    return
