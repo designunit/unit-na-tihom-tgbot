@@ -6,7 +6,7 @@ from config import mongo_config
 
 LOGGER = logging.getLogger(__name__)
 DB_NAME = "tixiy_bot_db"
-COLLECTION_NAME = "events_schedule"
+COLLECTION_NAME = "events"
 
 
 def connect():
