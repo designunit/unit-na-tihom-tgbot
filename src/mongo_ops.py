@@ -16,7 +16,7 @@ def connect():
         conn = MongoClient(**params)
         if conn is not None:
             return conn
-        
+
     except Exception as e:
         LOGGER.critical(e)
         exit(1)
@@ -29,7 +29,7 @@ def insert_event(event):
         event_id = collection.insert_one(event).inserted_id
         if event_id is not None:
             return True
-        
+
         return False
 
     except Exception as e:
@@ -42,9 +42,11 @@ def get_events_by_user_time(user_time):
     try:
         conn = connect()
         collection = conn[DB_NAME][COLLECTION_NAME]
-        event = collection.find({"time_start": {"$lte": user_time}, "time_end": {"$gte": user_time}})
+        event = collection.find(
+            {"time_start": {"$lte": user_time}, "time_end": {"$gte": user_time}}
+        )
         return event
-    
+
     except Exception as e:
         LOGGER.error(f"Error occured when you tried to get events by user time: {e}")
         return None

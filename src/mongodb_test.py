@@ -8,15 +8,17 @@ event_sample1 = {
     "time_end": datetime.datetime(2023, 8, 12, 10, 50),
     "Name": "Открытие лектория",
     "Mark": "Брифинг",
-    "Speaker": [{"name": "Лиза Владимировна", "status": "Куратор резиденции"},
-                {"name": "Владимир Петросян", "status": "Куратор резиденции"}]
+    "Speaker": [
+        {"name": "Лиза Владимировна", "status": "Куратор резиденции"},
+        {"name": "Владимир Петросян", "status": "Куратор резиденции"},
+    ],
 }
 
 
 event_sample2 = {
     "time_start": datetime.datetime(2023, 8, 11, 14, 00),
     "time_end": datetime.datetime(2023, 8, 11, 16, 00),
-    "Name": "LE BEAU SERGE"
+    "Name": "LE BEAU SERGE",
 }
 
 

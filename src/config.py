@@ -25,7 +25,7 @@ if not BOT_TOKEN:
     raise Exception("BOT_TOKEN not found in .env file")
 
 
-def mongo_config(filename='database.ini', section='mongo'):
+def mongo_config(filename="database.ini", section="mongo"):
     parser = ConfigParser()
 
     parser.read(filename)
@@ -37,5 +37,5 @@ def mongo_config(filename='database.ini', section='mongo'):
             db_config[param[0]] = param[1]
     else:
         raise Exception(f"Section {section} not found in the {filename} file")
-    
+
     return db_config
