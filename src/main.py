@@ -1,11 +1,18 @@
 #!/bin/env python3.10
 import telegram
+import logging
 
 from telegram.ext import (
     CommandHandler,
     ApplicationBuilder,
     ConversationHandler,
 )
+
+# local imports
+import config
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 async def map_start_conversation(context, update):
@@ -49,6 +56,5 @@ def main():
     app.run_polling()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
