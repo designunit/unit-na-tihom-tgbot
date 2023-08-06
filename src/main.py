@@ -15,15 +15,23 @@ import config
 LOGGER = logging.getLogger(__name__)
 
 
-async def map_start_conversation(context, update):
+async def start(update, context):
     return None
 
 
-async def map_stop_conversation(context, update):
+async def help(update, context):
+    await update.send_message("hehe")
+
+
+async def map_start_conversation(update, context):
     return None
 
 
-async def revert(context, update):
+async def map_stop_conversation(update, context):
+    return None
+
+
+async def revert(update, context):
     return None
 
 
@@ -35,19 +43,6 @@ def main():
         exit(1)
 
     app.add_handler(CommandHandler("start", help))
-
-    revert_hander = ConversationHandler(
-        entry_points=[CommandHandler("revert", revert)],
-        states={
-            USER_KEYBOARD_INPUT: [
-                MessageHandler(
-                    filters.Regex("^(Yes|No)$"),
-                    confirm_revert
-                )
-            ],
-        },
-        fallbacks=[CommandHandler("cancel", cancel)],
-    )
 
     app.add_handler(insert_record_handler)
     app.add_handler(revert_hander)
