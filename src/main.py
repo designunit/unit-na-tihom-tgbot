@@ -23,6 +23,10 @@ async def map_stop_conversation(context, update):
     return None
 
 
+async def revert(context, update):
+    return None
+
+
 def main():
     try:
         app = ApplicationBuilder().token(config.BOT_TOKEN).build()
