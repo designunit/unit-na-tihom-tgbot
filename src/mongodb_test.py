@@ -33,21 +33,20 @@ from mongo_ops import insert_event, get_events_by_user_time, connect
 #     print(i)
 
 
-
 ### ADD FILE
 
 conn = connect()
-db = conn['tixiy_bot_db']
+db = conn["tixiy_bot_db"]
 fs = gridfs.GridFS(db)
 
-name = 'music.jpg'
-file_location = '/home/danila/Documents/unit_na_tixom_files/' + name
+name = "music.jpg"
+file_location = "/home/danila/Documents/unit_na_tixom_files/" + name
 
-with open(file_location, 'rb') as file:
+with open(file_location, "rb") as file:
     data = file.read()
 
 fs.put(data, filename=name)
-print('upload completed')
+print("upload completed")
 
 # name2 = 'test123.jpj'
 # new_data = db.fs.files.find_one({"filename": name})
@@ -55,5 +54,5 @@ print('upload completed')
 # output_data = fs.get(my_id).read()
 # download_location = '/home/danila/Downloads/' + name2
 # with open(download_location, 'wb') as file:
-#     file.write(output_data) 
+#     file.write(output_data)
 # print("download completed")

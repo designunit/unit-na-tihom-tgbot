@@ -56,16 +56,16 @@ def get_events_by_user_time(user_time):
 def get_file_by_name(filename):
     try:
         conn = connect()
-        db = conn['tixiy_bot_db']
+        db = conn["tixiy_bot_db"]
         fs = gridfs.GridFS(db)
         data = db.fs.files.find_one({"filename": filename})
         if data is None:
             return None
-        
-        id = data.get('_id')
+
+        id = data.get("_id")
         if id is None:
             return None
-        
+
         return fs.get(id).read()
 
     except Exception as e:
