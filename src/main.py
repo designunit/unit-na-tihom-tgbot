@@ -17,6 +17,7 @@ import mongo_ops
 
 LOGGER = logging.getLogger(__name__)
 
+
 IMPORTANT_INFO_TEXT = "Важная инфомрация!"
 CAMP_RULES_TEXT = "Правила лагеря!"
 
@@ -121,6 +122,7 @@ def main():
 
     app.add_handler(CommandHandler("start", start))
 
+
     app.add_handler(MessageHandler(filters.TEXT & filters.Regex("^карта$"), get_map))
     app.add_handler(
         MessageHandler(
@@ -145,6 +147,7 @@ def main():
     app.add_handler(
         MessageHandler(filters.TEXT & filters.Regex("^трансфер$"), get_transer_info)
     )
+
 
     # start
     app.run_polling()
