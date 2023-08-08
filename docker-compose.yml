@@ -2,10 +2,10 @@ version: '3.3'
 
 services:
   mongo-db:
-    image: postgres:15-alpine
+    image: mongo
     restart: always
     ports:
-      - 5432:5432
+      - 27017:27017
     env_file: .env
     environment:
        POSTGRES_USER: ${POSTGRES_USER}
