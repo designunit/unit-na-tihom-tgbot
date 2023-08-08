@@ -1,5 +1,6 @@
 #!/bin/env python3.10
 import logging
+import datetime
 
 from telegram.ext import (
     CommandHandler,
@@ -34,6 +35,7 @@ COMMAND_KEYBOARD = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True,
     is_persistent=True,
+    one_time_keyboard=False
 )
 
 
@@ -54,24 +56,46 @@ async def get_map(update, context):
             chat_id=update.effective_chat.id, text="Не могу загрузить карту."
         )
 
-    await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_map_jpg)
-    await context.bot.send_document(
-        chat_id=update.effective_chat.id,
-        document=photo_map_pdf,
-        filename="camp map.pdf",
-    )
+    if photo_map_jpg is not None:
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_map_jpg)
+
+    if photo_map_pdf is not None:
+        await context.bot.send_document(
+            chat_id=update.effective_chat.id,
+            document=photo_map_pdf,
+            filename="camp map.pdf",
+        )
 
 
 async def get_current_events(update, context):
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id, text="sent you current events"
-    )
+    user_time = datetime.datetime.now()
+    current_events = mongo_ops.get_events_by_user_time(user_time)
+    if len(current_events) == 0:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text=f'Сейчас ничего не происходит: your time: {user_time}'
+        )
+
+    for event in current_events:
+        event_name = event.get('name')
+        if event_name is not None:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"{event['name']}")
 
 
 async def get_programm(update, context):
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id, text="sent you your programm"
-    )
+    photo_program_jpg = mongo_ops.get_file_by_name("program.jpg")
+    photo_program_pdf = mongo_ops.get_file_by_name("program.pdf")
+
+    if not all([photo_program_pdf, photo_program_jpg]):
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="не могу прислать программу.")
+    if photo_program_jpg is not None:
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_program_jpg)
+
+    if photo_program_pdf is not None:
+        await context.bot.send_document(
+            chat_id=update.effective_chat.id,
+            document=photo_program_pdf,
+            filename="program.pdf"
+        )
 
 
 async def get_music(update, context):
@@ -83,12 +107,15 @@ async def get_music(update, context):
             chat_id=update.effective_chat.id, text="Не могу загрузить музыку."
         )
 
-    await context.bot.send_photo(
-        chat_id=update.effective_chat.id, photo=photo_music_jpg
-    )
-    await context.bot.send_document(
-        chat_id=update.effective_chat.id, document=photo_music_pdf, filename="music.pdf"
-    )
+    if photo_music_jpg is not None:
+        await context.bot.send_photo(
+            chat_id=update.effective_chat.id, photo=photo_music_jpg
+        )
+    
+    if photo_music_pdf is not None:
+        await context.bot.send_document(
+            chat_id=update.effective_chat.id, document=photo_music_pdf, filename="music.pdf"
+        )
 
 
 async def get_camp_rules(update, context):

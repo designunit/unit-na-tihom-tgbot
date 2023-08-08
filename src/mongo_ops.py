@@ -43,10 +43,10 @@ def get_events_by_user_time(user_time):
     try:
         conn = connect()
         collection = conn[DB_NAME][COLLECTION_NAME]
-        event = collection.find(
+        events = collection.find(
             {"time_start": {"$lte": user_time}, "time_end": {"$gte": user_time}}
         )
-        return event
+        return [event for event in events]
 
     except Exception as e:
         LOGGER.error(f"Error occured when you tried to get events by user time: {e}")
