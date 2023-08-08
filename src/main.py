@@ -72,6 +72,9 @@ LANDSCAPE_KEYBOARD = InlineKeyboardMarkup([
         [InlineKeyboardButton("закулисье", callback_data="text_backstage")],
     ])
 
+TRANSFER_KEYBOARD = InlineKeyboardMarkup([
+    [InlineKeyboardButton("туда", callback_data="forward_trip_jpg"), InlineKeyboardButton("обратно", callback_data="back_trip_jpg")]
+])
 
 async def start(update, context):
     await context.bot.send_message(
@@ -82,24 +85,26 @@ async def start(update, context):
 
 
 async def get_map(update, context):
-    photo_map_jpg = mongo_ops.get_file_by_name("map.jpg")
-    photo_map_pdf = mongo_ops.get_file_by_name("map.pdf")
+    photo_data_jpg = mongo_ops.get_file_by_name("map_jpg")
+    photo_data_pdf = mongo_ops.get_file_by_name("map_pdf")
 
-    if not all([photo_map_jpg, photo_map_pdf]):
+    if not all([photo_data_jpg, photo_data_pdf]):
         await context.bot.send_message(
             chat_id=update.effective_chat.id, text="Не могу загрузить карту."
         )
 
-    if photo_map_jpg is not None:
+    if photo_data_jpg is not None:
+        photo_map = photo_data_jpg[1]
         await context.bot.send_photo(
-            chat_id=update.effective_chat.id, photo=photo_map_jpg
+            chat_id=update.effective_chat.id, photo=photo_map
         )
 
-    if photo_map_pdf is not None:
+    if photo_data_pdf is not None:
+        file_name, photo_map = photo_data_pdf
         await context.bot.send_document(
             chat_id=update.effective_chat.id,
-            document=photo_map_pdf,
-            filename="camp map.pdf",
+            document=photo_map,
+            filename=file_name,
         )
 
 
@@ -118,33 +123,41 @@ async def get_current_events(update, context):
             chat_id=update.effective_chat.id,
             text=f"Сейчас ничего не происходит: your time: {user_time}",
         )
+        return
 
+    buttons = []
     for event in current_events:
         event_name = event.get("name")
         if event_name is not None:
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id, text=f"{event['name']}"
-            )
+            buttons.append([InlineKeyboardButton(text=event_name, callback_data=event_name)])
+
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="Сейчас происходит:",
+        reply_markup=InlineKeyboardMarkup(buttons)
+    )
 
 
 async def get_programm(update, context):
-    photo_program_jpg = mongo_ops.get_file_by_name("program.jpg")
-    photo_program_pdf = mongo_ops.get_file_by_name("program.pdf")
+    photo_data_jpg = mongo_ops.get_file_by_name("program_jpg")
+    photo_data_pdf = mongo_ops.get_file_by_name("program_pdf")
 
-    if not all([photo_program_pdf, photo_program_jpg]):
+    if not all([photo_data_pdf, photo_data_jpg]):
         await context.bot.send_message(
             chat_id=update.effective_chat.id, text="не могу прислать программу."
         )
-    if photo_program_jpg is not None:
+    if photo_data_jpg is not None:
+        photo_program = photo_data_jpg[1]
         await context.bot.send_photo(
-            chat_id=update.effective_chat.id, photo=photo_program_jpg
+            chat_id=update.effective_chat.id, photo=photo_program
         )
 
-    if photo_program_pdf is not None:
+    if photo_data_pdf is not None:
+        file_name, photo_program = photo_data_pdf
         await context.bot.send_document(
             chat_id=update.effective_chat.id,
-            document=photo_program_pdf,
-            filename="program.pdf",
+            document=photo_program,
+            filename=file_name,
         )
     
     await context.bot.send_message(
@@ -155,24 +168,26 @@ async def get_programm(update, context):
 
 
 async def get_music(update, context):
-    photo_music_jpg = mongo_ops.get_file_by_name("music.jpg")
-    photo_music_pdf = mongo_ops.get_file_by_name("music.pdf")
+    photo_data_jpg = mongo_ops.get_file_by_name("music_jpg")
+    photo_data_pdf = mongo_ops.get_file_by_name("music_pdf")
 
-    if not all([photo_music_jpg, photo_music_pdf]):
+    if not all([photo_data_jpg, photo_data_pdf]):
         await context.bot.send_message(
             chat_id=update.effective_chat.id, text="Не могу загрузить музыку."
         )
 
-    if photo_music_jpg is not None:
+    if photo_data_jpg is not None:
+        photo_jpg = photo_data_jpg[1]
         await context.bot.send_photo(
-            chat_id=update.effective_chat.id, photo=photo_music_jpg
+            chat_id=update.effective_chat.id, photo=photo_jpg
         )
 
-    if photo_music_pdf is not None:
+    if photo_data_pdf is not None:
+        file_name, photo_music = photo_data_pdf
         await context.bot.send_document(
             chat_id=update.effective_chat.id,
-            document=photo_music_pdf,
-            filename="music.pdf",
+            document=photo_music,
+            filename=file_name,
         )
 
 
@@ -188,6 +203,19 @@ async def get_landscape_objects(update, context):
         text="sent you your landscape objects",
         reply_markup=LANDSCAPE_KEYBOARD,
     )
+
+
+async def get_important_info(update, context):
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, text=IMPORTANT_INFO_TEXT
+    )
+
+
+async def get_transer_info(update, context):
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text="трансфер:",
+        reply_markup=TRANSFER_KEYBOARD)
 
 
 async def inline_button(update, context):
@@ -208,17 +236,13 @@ async def inline_button(update, context):
             await context.bot.send_message(chat_id=update.effective_chat.id, text=f'{event.get("name")}')
 
     else:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"other {data}")
-
-
-async def get_important_info(update, context):
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id, text=IMPORTANT_INFO_TEXT
-    )
-
-
-async def get_transer_info(update, context):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="transer!")
+        file_data = mongo_ops.get_file_by_name(data.lower())
+        if file_data is not None:
+            file_name, presentation = file_data
+            await context.bot.send_document(chat_id=update.effective_chat.id,
+                                            document=presentation,
+                                            filename=file_name,
+        )
 
 
 def main():

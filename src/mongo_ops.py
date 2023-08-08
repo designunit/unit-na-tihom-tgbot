@@ -56,23 +56,24 @@ def get_events_by_user_time(user_time):
         return None
 
 
-def get_file_by_name(filename):
+def get_file_by_name(name):
     try:
         conn = connect()
         db = conn[DB_NAME]
         fs = gridfs.GridFS(db)
-        data = db.fs.files.find_one({"filename": filename})
+        data = db.fs.files.find_one({"label": name})
         if data is None:
             return None
 
         id = data.get("_id")
-        if id is None:
+        file_name = data.get("filename")
+        if not all([id, file_name]):
             return None
 
-        return fs.get(id).read()
+        return file_name, fs.get(id).read()
 
     except Exception as e:
-        LOGGER.error(f"Error occured when you tried to get {filename} file: {e}")
+        LOGGER.error(f"Error occured when you tried to get {name} file: {e}")
         return None
 
 
