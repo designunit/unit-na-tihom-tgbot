@@ -17,6 +17,8 @@ logging.basicConfig(
     handlers=[logging.FileHandler("/tmp/tg_bot.log"), logging.StreamHandler()],
 )
 
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
 LOGGER = logging.getLogger(__name__)
 
 
