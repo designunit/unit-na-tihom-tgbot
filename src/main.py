@@ -7,9 +7,15 @@ from telegram.ext import (
     ApplicationBuilder,
     MessageHandler,
     filters,
+    CallbackQueryHandler,
 )
 
-from telegram import ReplyKeyboardMarkup, KeyboardButton
+from telegram import (
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+)
 
 # local imports
 import config
@@ -35,7 +41,7 @@ COMMAND_KEYBOARD = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True,
     is_persistent=True,
-    one_time_keyboard=False
+    one_time_keyboard=False,
 )
 
 
@@ -57,7 +63,9 @@ async def get_map(update, context):
         )
 
     if photo_map_jpg is not None:
-        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_map_jpg)
+        await context.bot.send_photo(
+            chat_id=update.effective_chat.id, photo=photo_map_jpg
+        )
 
     if photo_map_pdf is not None:
         await context.bot.send_document(
@@ -72,13 +80,16 @@ async def get_current_events(update, context):
     current_events = mongo_ops.get_events_by_user_time(user_time)
     if len(current_events) == 0:
         await context.bot.send_message(
-            chat_id=update.effective_chat.id, text=f'Сейчас ничего не происходит: your time: {user_time}'
+            chat_id=update.effective_chat.id,
+            text=f"Сейчас ничего не происходит: your time: {user_time}",
         )
 
     for event in current_events:
-        event_name = event.get('name')
+        event_name = event.get("name")
         if event_name is not None:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"{event['name']}")
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text=f"{event['name']}"
+            )
 
 
 async def get_programm(update, context):
@@ -86,15 +97,19 @@ async def get_programm(update, context):
     photo_program_pdf = mongo_ops.get_file_by_name("program.pdf")
 
     if not all([photo_program_pdf, photo_program_jpg]):
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="не могу прислать программу.")
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text="не могу прислать программу."
+        )
     if photo_program_jpg is not None:
-        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_program_jpg)
+        await context.bot.send_photo(
+            chat_id=update.effective_chat.id, photo=photo_program_jpg
+        )
 
     if photo_program_pdf is not None:
         await context.bot.send_document(
             chat_id=update.effective_chat.id,
             document=photo_program_pdf,
-            filename="program.pdf"
+            filename="program.pdf",
         )
 
 
@@ -111,10 +126,12 @@ async def get_music(update, context):
         await context.bot.send_photo(
             chat_id=update.effective_chat.id, photo=photo_music_jpg
         )
-    
+
     if photo_music_pdf is not None:
         await context.bot.send_document(
-            chat_id=update.effective_chat.id, document=photo_music_pdf, filename="music.pdf"
+            chat_id=update.effective_chat.id,
+            document=photo_music_pdf,
+            filename="music.pdf",
         )
 
 
@@ -125,9 +142,27 @@ async def get_camp_rules(update, context):
 
 
 async def get_landscape_objects(update, context):
+    keyboard = [
+        [InlineKeyboardButton("лагерь", callback_data="лагерь")],
+        [InlineKeyboardButton("гастрономия", callback_data="гастрономия")],
+        [InlineKeyboardButton("main stage", callback_data="main stage")],
+        [InlineKeyboardButton("амфитеатр", callback_data="амфитеатр")],
+        [InlineKeyboardButton("закулисье", callback_data="закулисье")],
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
     await context.bot.send_message(
-        chat_id=update.effective_chat.id, text="sent you your landscape objects"
+        chat_id=update.effective_chat.id,
+        text="sent you your landscape objects",
+        reply_markup=reply_markup,
     )
+
+
+async def button(update, context):
+    query = update.callback_query
+    await query.answer()
+    await query.edit_message_text(text=f"You choose: {query.data}")
 
 
 async def get_important_info(update, context):
@@ -148,7 +183,6 @@ def main():
         exit(1)
 
     app.add_handler(CommandHandler("start", start))
-
 
     app.add_handler(MessageHandler(filters.TEXT & filters.Regex("^карта$"), get_map))
     app.add_handler(
@@ -175,6 +209,7 @@ def main():
         MessageHandler(filters.TEXT & filters.Regex("^трансфер$"), get_transer_info)
     )
 
+    app.add_handler(CallbackQueryHandler(button))
 
     # start
     app.run_polling()
