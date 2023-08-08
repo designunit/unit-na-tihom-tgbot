@@ -7,6 +7,7 @@ COPY poetry.lock pyproject.toml .env /app/
 
 WORKDIR /app/
 
+COPY database.ini /app/
 COPY /src/* /app/
 
 RUN poetry --no-root install
