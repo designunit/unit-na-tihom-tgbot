@@ -42,9 +42,9 @@ def mongo_config(filename="database.ini", section="mongo"):
     else:
         raise Exception(f"Section {section} not found in the {filename} file")
 
-    try:
-        db_config['port'] = int(db_config['port'])
-    except Exception as e:
-        raise Exception(e)
+    # try:
+    #     db_config['port'] = int(db_config['port'])
+    # except Exception as e:
+    #     raise Exception(e)
 
     return db_config

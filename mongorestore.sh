@@ -1,0 +1,1 @@
+mongorestore --host=172.21.90.197 --db tixiy_bot_db './dump/*.bson'

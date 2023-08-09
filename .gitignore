@@ -3,3 +3,5 @@ __pycache__
 .env
 database.ini
 data/
+*.zip
+dump/
