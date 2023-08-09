@@ -1,8 +1,8 @@
 import logging
 import os
+import configparser
 
 from dotenv import load_dotenv
-from configparser import ConfigParser
 
 
 if os.path.isfile(".env"):
@@ -23,12 +23,14 @@ LOGGER = logging.getLogger(__name__)
 
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-if not BOT_TOKEN:
-    raise Exception("BOT_TOKEN not found in .env file")
+DB_NAME = os.getenv('DB_NAME')
+COLLECTION_NAME = os.getenv('COLLECTION_NAME')
+if not all([BOT_TOKEN, DB_NAME, COLLECTION_NAME]):
+    raise Exception("Not all env variables are present")
 
 
 def mongo_config(filename="database.ini", section="mongo"):
-    parser = ConfigParser()
+    parser = configparser.ConfigParser()
 
     parser.read(filename)
 
@@ -39,5 +41,10 @@ def mongo_config(filename="database.ini", section="mongo"):
             db_config[param[0]] = param[1]
     else:
         raise Exception(f"Section {section} not found in the {filename} file")
+
+    try:
+        db_config['port'] = int(db_config['port'])
+    except Exception as e:
+        raise Exception(e)
 
     return db_config

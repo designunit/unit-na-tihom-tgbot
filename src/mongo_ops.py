@@ -2,20 +2,27 @@ from pymongo import MongoClient
 import logging
 import gridfs
 
-from config import mongo_config
+# local import
+import config
+
+# from config import mongo_config
 
 
 LOGGER = logging.getLogger(__name__)
-DB_NAME = "tixiy_bot_db"
-COLLECTION_NAME = "events"
+DB_NAME = config.DB_NAME
+COLLECTION_NAME = config.COLLECTION_NAME
 
 
 def connect():
     try:
-        params = mongo_config()
+        params = config.mongo_config()
+        print(params)
 
         conn = MongoClient(**params)
+        # conn = MongoClient(host=params['host'], port=params['port'])
+        print(conn)
         if conn is not None:
+            LOGGER.info("Successfully connected to mongodb")
             return conn
 
     except Exception as e:
@@ -23,6 +30,7 @@ def connect():
         exit(1)
 
 
+# def insert_event(event):
 def insert_event(event):
     try:
         conn = connect()
