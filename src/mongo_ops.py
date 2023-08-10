@@ -16,11 +16,8 @@ COLLECTION_NAME = config.COLLECTION_NAME
 def connect():
     try:
         params = config.mongo_config()
-        print(params)
 
         conn = MongoClient(**params)
-        # conn = MongoClient(host=params['host'], port=params['port'])
-        print(conn)
         if conn is not None:
             LOGGER.info("Successfully connected to mongodb")
             return conn

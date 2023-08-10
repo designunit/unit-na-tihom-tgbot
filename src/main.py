@@ -146,6 +146,7 @@ async def get_programm(update, context):
         await context.bot.send_message(
             chat_id=update.effective_chat.id, text="не могу прислать программу."
         )
+
     if photo_data_jpg is not None:
         photo_program = photo_data_jpg[1]
         await context.bot.send_photo(
