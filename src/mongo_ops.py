@@ -5,8 +5,6 @@ import gridfs
 # local import
 import config
 
-# from config import mongo_config
-
 
 LOGGER = logging.getLogger(__name__)
 DB_NAME = config.DB_NAME
@@ -30,7 +28,6 @@ def connect():
         exit(1)
 
 
-# def insert_event(event):
 def insert_event(event):
     try:
         conn = connect()
@@ -44,7 +41,21 @@ def insert_event(event):
     except Exception as e:
         LOGGER.error(f"Error occured when you tried to insert new event: {e}")
         return False
+    
 
+def insert_events(events_list):
+    try:
+        conn = connect()
+        collection = conn[DB_NAME][COLLECTION_NAME]
+        events_ids = collection.insert_many(events_list).inserted_ids
+        if events_ids is not None:
+            return True
+        
+        return False
+
+    except Exception as e:
+        LOGGER.error(f"Eror occured when you tried to insert multiple events: {e}")
+        return False
 
 def get_events_by_user_time(user_time):
     # user time must be datetime object
@@ -89,7 +100,7 @@ def get_events_by_location(location):
     try:
         conn = connect()
         collection = conn[DB_NAME][COLLECTION_NAME]
-        events = collection.find({"location": location})
+        events = collection.find({"location": location, "part": "лекторий"})
 
         if events is None:
             return None
@@ -97,5 +108,15 @@ def get_events_by_location(location):
         return [event for event in events]
 
     except Exception as e:
-        LOGGER.error(f"Error occured when you trid to get event by {location} place: {e}")
+        LOGGER.error(f"Error occured when you tried to get event by {location} place: {e}")
         return None
+    
+
+def get_event_by_id(id):
+    try:
+        conn = connect()
+        collection = conn[DB_NAME][COLLECTION_NAME]
+        events = collection.find({})
+
+    except Exception as e:
+        LOGGER.error(f"Error occured when you tried to get event by {id} id: {e}")

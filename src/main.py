@@ -231,9 +231,38 @@ async def inline_button(update, context):
         if events is None:
             await context.bot.send_message(chat_id=update.effective_chat.id, text=f'не могу загрузить программу для: {data}')
             return
-
+        buttons = []
         for event in events:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=f'{event.get("name")}')
+            event_name = event.get("name")
+            event_id = event.get("_id")
+
+            if event_name is not None:
+                buttons.append([InlineKeyboardButton(text=f'{event_name}', callback_data=str(event_id) + 'Bot_program_event!')])
+        
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text=f"Программа для: {data}",
+                                       reply_markup=InlineKeyboardMarkup(buttons)
+                                        )
+            
+        # for event in events:
+        #     name = event.get("name")
+        #     lectors = event.get("speakers")
+        #     description = event.get("description")
+        #     time_start = event.get("start_time")
+        #     time_end = event.get("end_time")
+
+        #     print([name, lectors, time_start, time_end, description])
+        #     if all([name, lectors, time_start, time_end, description]):
+        #         output_text = f'Название: {name}\nЛектор: {lectors}\nОписание: {description}\nВремя: {time_start} - {time_end}'
+        #         await context.bot.send_message(chat_id=update.effective_chat.id, text=output_text)
+
+    elif 'Bot_program_event' in data:
+        query = update.callback_query
+        data = query.data
+        await query.answer()
+
+
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=data) 
 
     else:
         file_data = mongo_ops.get_file_by_name(data.lower())
