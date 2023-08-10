@@ -154,7 +154,7 @@ async def get_current_events(update, context):
     for event in current_events:
         event_name = event.get("name")
         if event_name is not None:
-            buttons.append([InlineKeyboardButton(text=event_name, callback_data=event_name)])
+            buttons.append([InlineKeyboardButton(text=event_name, callback_data=event_name[:10])])
 
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
