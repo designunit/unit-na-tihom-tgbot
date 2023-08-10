@@ -98,10 +98,10 @@ def get_events_by_location(location):
     try:
         with contextlib.closing(connect()) as conn:
             collection = conn[DB_NAME][COLLECTION_NAME]
-            events = collection.find({"location": location})
+            events = collection.find({"location": location, "part": "лекторий"})
 
-        if events is not None:
-            return [event for event in events]
+            if events is not None:
+                return [event for event in events]
 
     except Exception as e:
         LOGGER.error(f"Error occured when you tried to get event by {location} place: {e}")
@@ -110,9 +110,12 @@ def get_events_by_location(location):
 
 def get_event_by_id(id):
     try:
-        conn = connect()
-        collection = conn[DB_NAME][COLLECTION_NAME]
-        events = collection.find({})
+        with contextlib.closing(connect()) as conn:
+            collection = conn[DB_NAME][COLLECTION_NAME]
+            event = collection.find({"_id": id})
+            return event
 
     except Exception as e:
         LOGGER.error(f"Error occured when you tried to get event by {id} id: {e}")
+        return None
+    
