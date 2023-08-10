@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 import logging
 import gridfs
+import contextlib
 
 # local import
 import config
@@ -14,11 +15,8 @@ COLLECTION_NAME = config.COLLECTION_NAME
 def connect():
     try:
         params = config.mongo_config()
-        print(params)
 
         conn = MongoClient(**params)
-        # conn = MongoClient(host=params['host'], port=params['port'])
-        print(conn)
         if conn is not None:
             LOGGER.info("Successfully connected to mongodb")
             return conn
@@ -30,13 +28,13 @@ def connect():
 
 def insert_event(event):
     try:
-        conn = connect()
-        collection = conn[DB_NAME][COLLECTION_NAME]
-        event_id = collection.insert_one(event).inserted_id
-        if event_id is not None:
-            return True
+        with contextlib.closing(connect()) as conn:
+            collection = conn[DB_NAME][COLLECTION_NAME]
+            event_id = collection.insert_one(event).inserted_id
+            if event_id is not None:
+                return True
 
-        return False
+            return False
 
     except Exception as e:
         LOGGER.error(f"Error occured when you tried to insert new event: {e}")
@@ -60,15 +58,15 @@ def insert_events(events_list):
 def get_events_by_user_time(user_time):
     # user time must be datetime object
     try:
-        conn = connect()
-        collection = conn[DB_NAME][COLLECTION_NAME]
-        events = collection.find(
-            {"time_start": {"$lte": user_time}, "time_end": {"$gte": user_time}}
-        )
-        if events is None:
-            return None
-        
-        return [event for event in events]
+        with contextlib.closing(connect()) as conn:
+            collection = conn[DB_NAME][COLLECTION_NAME]
+            events = collection.find(
+                {"time_start": {"$lte": user_time}, "time_end": {"$gte": user_time}}
+            )
+            if events is None:
+                return None
+
+            return [event for event in events]
 
     except Exception as e:
         LOGGER.error(f"Error occured when you tried to get events by user time: {e}")
@@ -77,19 +75,19 @@ def get_events_by_user_time(user_time):
 
 def get_file_by_name(name):
     try:
-        conn = connect()
-        db = conn[DB_NAME]
-        fs = gridfs.GridFS(db)
-        data = db.fs.files.find_one({"label": name})
-        if data is None:
-            return None
+        with contextlib.closing(connect()) as conn:
+            db = conn[DB_NAME]
+            fs = gridfs.GridFS(db)
+            data = db.fs.files.find_one({"label": name})
+            if data is None:
+                return None
 
-        id = data.get("_id")
-        file_name = data.get("filename")
-        if not all([id, file_name]):
-            return None
+            id = data.get("_id")
+            file_name = data.get("filename")
+            if not all([id, file_name]):
+                return None
 
-        return file_name, fs.get(id).read()
+            return file_name, fs.get(id).read()
 
     except Exception as e:
         LOGGER.error(f"Error occured when you tried to get {name} file: {e}")
@@ -98,14 +96,12 @@ def get_file_by_name(name):
 
 def get_events_by_location(location):
     try:
-        conn = connect()
-        collection = conn[DB_NAME][COLLECTION_NAME]
-        events = collection.find({"location": location, "part": "лекторий"})
+        with contextlib.closing(connect()) as conn:
+            collection = conn[DB_NAME][COLLECTION_NAME]
+            events = collection.find({"location": location})
 
-        if events is None:
-            return None
-        
-        return [event for event in events]
+        if events is not None:
+            return [event for event in events]
 
     except Exception as e:
         LOGGER.error(f"Error occured when you tried to get event by {location} place: {e}")
