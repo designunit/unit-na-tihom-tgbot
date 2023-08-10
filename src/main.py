@@ -24,8 +24,8 @@ import mongo_ops
 
 LOGGER = logging.getLogger(__name__)
 
-
-IMPORTANT_INFO_TEXT = "Важная инфомрация!"
+ADMIN_IDS = [136858809, 777855967]
+IMPORTANT_INFO_TEXT = ["Объявления еще нет!"]
 CAMP_RULES_TEXT = "Правила лагеря!"
 
 LANDSCAPE_OBJECTS_DICT = {
@@ -208,7 +208,7 @@ async def get_landscape_objects(update, context):
 
 async def get_important_info(update, context):
     await context.bot.send_message(
-        chat_id=update.effective_chat.id, text=IMPORTANT_INFO_TEXT
+        chat_id=update.effective_chat.id, text=IMPORTANT_INFO_TEXT[-1]
     )
 
 
@@ -216,7 +216,8 @@ async def get_transer_info(update, context):
     await context.bot.send_message(
         chat_id=update.effective_chat.id, 
         text="трансфер:",
-        reply_markup=TRANSFER_KEYBOARD)
+        reply_markup=TRANSFER_KEYBOARD
+    )
 
 
 async def inline_button(update, context):
@@ -244,6 +245,16 @@ async def inline_button(update, context):
                                             document=presentation,
                                             filename=file_name,
         )
+
+
+async def announcement(update, context):
+    if not update.effective_chat.id in ADMIN_IDS:
+        return 
+
+    admin_announcement = update.message.text
+
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Сообщение: '{admin_announcement}' было добавлено в объявления")
+    IMPORTANT_INFO_TEXT.append(admin_announcement)
 
 
 def main():
@@ -281,6 +292,8 @@ def main():
     )
 
     app.add_handler(CallbackQueryHandler(inline_button))
+
+    app.add_handler(MessageHandler(filters.TEXT, announcement))
 
     # start
     app.run_polling()
