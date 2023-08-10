@@ -306,8 +306,8 @@ async def inline_button(update, context):
 
             print(time_start.strftime('%H:%M'))
 
-            output_text = f'#Название: {name}\n\nЛектор: {lectors}\n\nОписание: {description}\n\nВремя: {time_start.strftime("%H:%M")} - {time_end.strftime("%H:%M")}'
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=output_text) 
+            output_text = f'<b>Название</b>: {name}\n\n<b>Лектор</b>: {lectors}\n\n<b>Описание</b>: {description}\n\n<b>Время</b>: {time_start.strftime("%H:%M")} - {time_end.strftime("%H:%M")}'
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=output_text, parse_mode='html') 
 
     else:
         file_data = mongo_ops.get_file_by_name(data.lower())
