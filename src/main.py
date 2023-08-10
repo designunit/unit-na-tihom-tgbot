@@ -24,9 +24,19 @@ import mongo_ops
 
 LOGGER = logging.getLogger(__name__)
 
+ADMIN_IDS = [136858809, 777855967]
+IMPORTANT_INFO_TEXT = ["Объявления еще нет!"]
+CAMP_RULES_TEXT = """
+Дорогой гость! Наша резиденция располагается на невероятно красивой частной территории. Наша главная цель - отдохнуть и при этом не причинить вреда лесу, себе и друг другу 🫶
 
-IMPORTANT_INFO_TEXT = "Важная инфомрация!"
-CAMP_RULES_TEXT = "Правила лагеря!"
+Вот несколько важных пунктов:
+ 1. В целях нашей общей безопасности не разводить костров, даже в мангалах! 
+ 2. Помнить, что на площадке есть дети!
+ 3. Соблюдать правила раздельного сбора мусора действующие на территории всей резиденции. Вас с радостью проконсультируют наши волонтеры.
+ 4. Если что-то случилось или у вас появились вопросы - обращаться к любому сотруднику инфоцентра, расположенного напротив фудкорта.
+ 5. Медпункт всегда вам поможет! не паниковать и при необходимости общаться к ним.
+ 6. Уважать друг друга, заботиться об окружающих людях и пространстве ❤️
+"""
 
 LANDSCAPE_OBJECTS_DICT = {
     'text_camp': 'лагерь',
@@ -208,7 +218,7 @@ async def get_landscape_objects(update, context):
 
 async def get_important_info(update, context):
     await context.bot.send_message(
-        chat_id=update.effective_chat.id, text=IMPORTANT_INFO_TEXT
+        chat_id=update.effective_chat.id, text=IMPORTANT_INFO_TEXT[-1]
     )
 
 
@@ -216,7 +226,8 @@ async def get_transer_info(update, context):
     await context.bot.send_message(
         chat_id=update.effective_chat.id, 
         text="трансфер:",
-        reply_markup=TRANSFER_KEYBOARD)
+        reply_markup=TRANSFER_KEYBOARD
+    )
 
 
 async def inline_button(update, context):
@@ -275,6 +286,16 @@ async def inline_button(update, context):
         )
 
 
+async def announcement(update, context):
+    if not update.effective_chat.id in ADMIN_IDS:
+        return 
+
+    admin_announcement = update.message.text
+
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Сообщение: '{admin_announcement}' было добавлено в объявления")
+    IMPORTANT_INFO_TEXT.append(admin_announcement)
+
+
 def main():
     try:
         app = ApplicationBuilder().token(config.BOT_TOKEN).build()
@@ -310,6 +331,8 @@ def main():
     )
 
     app.add_handler(CallbackQueryHandler(inline_button))
+
+    app.add_handler(MessageHandler(filters.TEXT, announcement))
 
     # start
     app.run_polling()
