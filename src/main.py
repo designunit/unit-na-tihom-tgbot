@@ -42,7 +42,6 @@ PROGRAM_LOCATION_DICT = {
     'program_backstage': 'закулисье'
     }
 
-
 MAIN_KEYBOARD = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="карта"), KeyboardButton(text="что происходит")],
@@ -75,6 +74,7 @@ LANDSCAPE_KEYBOARD = InlineKeyboardMarkup([
 TRANSFER_KEYBOARD = InlineKeyboardMarkup([
     [InlineKeyboardButton("туда", callback_data="forward_trip_jpg"), InlineKeyboardButton("обратно", callback_data="back_trip_jpg")]
 ])
+
 
 async def start(update, context):
     await context.bot.send_message(
