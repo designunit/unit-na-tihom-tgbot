@@ -89,7 +89,7 @@ TRANSFER_KEYBOARD = InlineKeyboardMarkup([
 async def start(update, context):
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text="choose an option",
+        text="Работа с ботом осуществляется через кнопки",
         reply_markup=MAIN_KEYBOARD,
     )
 
