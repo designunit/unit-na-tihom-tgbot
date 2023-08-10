@@ -5,3 +5,5 @@ database.ini
 data/
 *.zip
 dump/
+*.pdf
+*.jpg

@@ -89,7 +89,7 @@ TRANSFER_KEYBOARD = InlineKeyboardMarkup([
 async def start(update, context):
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text="choose an option",
+        text="Работа с ботом осуществляется через кнопки",
         reply_markup=MAIN_KEYBOARD,
     )
 
@@ -238,10 +238,19 @@ async def get_important_info(update, context):
 
 
 async def get_transer_info(update, context):
+    file_data = mongo_ops.get_file_by_name("transfer_jpg")
+    if file_data is None:
+        return
+
     await context.bot.send_message(
-        chat_id=update.effective_chat.id, 
-        text="трансфер:",
-        reply_markup=TRANSFER_KEYBOARD
+        chat_id=update.effective_chat.id,
+        text="Трансфер:",
+    )
+    file_name, presentation = file_data
+    await context.bot.send_document(
+        chat_id=update.effective_chat.id,
+        document=presentation,
+        filename=file_name,
     )
 
 
