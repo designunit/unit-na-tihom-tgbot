@@ -94,6 +94,21 @@ async def start(update, context):
     )
 
 
+def create_lectors_text(lectors_list):
+    output_message = ''
+
+    if lectors_list is None:
+        return 'нет лекторов'
+    
+    if isinstance(lectors_list, list):
+        for lector in lectors_list:
+            output_message += lector["name"] + ', '
+    else:
+        output_message += lectors_list["name"]
+
+    return output_message
+
+
 async def get_map(update, context):
     photo_data_jpg = mongo_ops.get_file_by_name("map_jpg")
     photo_data_pdf = mongo_ops.get_file_by_name("map_pdf")
@@ -249,7 +264,7 @@ async def inline_button(update, context):
             event_id = event.get("_id")
 
             if event_name is not None:
-                buttons.append([InlineKeyboardButton(text=f'{event_name}', callback_data=str(event_id) + 'Bot_program_event!')])
+                buttons.append([InlineKeyboardButton(text=f'{event_name}', callback_data='Bot_program_event!'+ str(event_id))])
         
         await context.bot.send_message(chat_id=update.effective_chat.id,
                                        text=f"Программа для: {data}",
@@ -273,8 +288,26 @@ async def inline_button(update, context):
         data = query.data
         await query.answer()
 
+        event = mongo_ops.get_event_by_id(data[18:])
 
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=data) 
+        if event is not None:
+            name = event.get("name")
+            if name is None:
+                name = "Названия нет"
+
+            print(event.get('speakers'))
+            lectors = create_lectors_text(event.get('speakers'))
+
+            description = event.get("description")
+            if description is None:
+                description = "Описания нет"
+            time_start = event.get("start_time")
+            time_end = event.get("end_time")
+
+            print(time_start.strftime('%H:%M'))
+
+            output_text = f'#Название: {name}\n\nЛектор: {lectors}\n\nОписание: {description}\n\nВремя: {time_start.strftime("%H:%M")} - {time_end.strftime("%H:%M")}'
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=output_text) 
 
     else:
         file_data = mongo_ops.get_file_by_name(data.lower())

@@ -2,6 +2,7 @@ from pymongo import MongoClient
 import logging
 import gridfs
 import contextlib
+from bson.objectid import ObjectId
 
 # local import
 import config
@@ -112,7 +113,8 @@ def get_event_by_id(id):
     try:
         with contextlib.closing(connect()) as conn:
             collection = conn[DB_NAME][COLLECTION_NAME]
-            event = collection.find({"_id": id})
+            event = collection.find_one({"_id": ObjectId(id)})
+
             return event
 
     except Exception as e:
