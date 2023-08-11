@@ -115,6 +115,9 @@ def create_lectors_text(lectors_list):
     else:
         output_message += lectors_list["name"]
 
+    if output_message.endswith(", "):
+        output_message = output_message[:-2]
+
     return output_message
 
 
