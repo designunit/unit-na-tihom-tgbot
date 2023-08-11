@@ -106,14 +106,8 @@ async def start(update, context):
 def create_lectors_text(lectors_list):
     output_message = ""
 
-    if lectors_list is None:
-        return "нет лекторов"
-
-    if isinstance(lectors_list, list):
-        for lector in lectors_list:
-            output_message += lector["name"] + ", "
-    else:
-        output_message += lectors_list["name"]
+    for lector in lectors_list:
+        output_message += lector["name"] + ", "
 
     if output_message.endswith(", "):
         output_message = output_message[:-2]
@@ -313,7 +307,11 @@ async def inline_button(update, context):
             if name is None:
                 name = "Названия нет"
 
-            lectors = create_lectors_text(event.get("speakers"))
+            speakers = event.get("speakers")
+            if speakers is None:
+                lectors = "Лекторов нет"
+            else:
+                lectors = create_lectors_text(speakers)
 
             description = event.get("description")
             if description is None:
