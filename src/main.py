@@ -243,20 +243,19 @@ async def get_important_info(update, context):
     )
 
 
-async def get_transer_info(update, context):
-    file_data = mongo_ops.get_file_by_name("transfer_jpg")
-    if file_data is None:
+async def get_transfer_info(update, context):
+    file = mongo_ops.get_file_by_name("transfer_jpg")
+    if file is None:
         return
 
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="Трансфер:",
     )
-    file_name, presentation = file_data
-    await context.bot.send_document(
+    _, file_data = file
+    await context.bot.send_photo(
         chat_id=update.effective_chat.id,
-        document=presentation,
-        filename=file_name,
+        photo=file_data,
     )
 
 
@@ -381,7 +380,7 @@ def main():
         MessageHandler(filters.TEXT & filters.Regex("^важное$"), get_important_info)
     )
     app.add_handler(
-        MessageHandler(filters.TEXT & filters.Regex("^трансфер$"), get_transer_info)
+        MessageHandler(filters.TEXT & filters.Regex("^трансфер$"), get_transfer_info)
     )
 
     app.add_handler(CallbackQueryHandler(inline_button))
