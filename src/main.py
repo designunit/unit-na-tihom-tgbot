@@ -329,12 +329,12 @@ async def inline_button(update, context):
             )
 
     else:
-        file_data = mongo_ops.get_file_by_name(data)
-        if file_data is not None:
-            file_name, presentation = file_data
+        file = mongo_ops.get_file_by_name(data)
+        if file is not None:
+            file_name, file_data = file
             await context.bot.send_document(
                 chat_id=update.effective_chat.id,
-                document=presentation,
+                document=file_data,
                 filename=file_name,
             )
 
