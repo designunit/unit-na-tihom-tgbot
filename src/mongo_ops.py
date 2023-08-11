@@ -63,7 +63,7 @@ def get_events_by_user_time(user_time):
         with contextlib.closing(connect()) as conn:
             collection = conn[DB_NAME][COLLECTION_NAME]
             events = collection.find(
-                {"time_start": {"$lte": user_time}, "time_end": {"$gte": user_time}}
+                {"start_time": {"$lte": user_time}, "end_time": {"$gte": user_time}}
             )
             if events is None:
                 return None

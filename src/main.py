@@ -327,7 +327,7 @@ async def inline_button(update, context):
             )
 
     else:
-        file_data = mongo_ops.get_file_by_name(data.lower())
+        file_data = mongo_ops.get_file_by_name(data)
         if file_data is not None:
             file_name, presentation = file_data
             await context.bot.send_document(
