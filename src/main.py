@@ -146,7 +146,7 @@ async def get_current_events(update, context):
     if len(current_events) == 0:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"Сейчас ничего не происходит: your time: {user_time}",
+            text=f"Сейчас ничего не происходит.",
         )
         return
 
