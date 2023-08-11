@@ -276,22 +276,10 @@ async def inline_button(update, context):
                 buttons.append([InlineKeyboardButton(text=f'{event_name}', callback_data='Bot_program_event!'+ str(event_id))])
         
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f"Программа для: {data}",
+                                       text=f"Программа для: {PROGRAM_LOCATION_DICT[data]}",
                                        reply_markup=InlineKeyboardMarkup(buttons)
                                         )
             
-        # for event in events:
-        #     name = event.get("name")
-        #     lectors = event.get("speakers")
-        #     description = event.get("description")
-        #     time_start = event.get("start_time")
-        #     time_end = event.get("end_time")
-
-        #     print([name, lectors, time_start, time_end, description])
-        #     if all([name, lectors, time_start, time_end, description]):
-        #         output_text = f'Название: {name}\nЛектор: {lectors}\nОписание: {description}\nВремя: {time_start} - {time_end}'
-        #         await context.bot.send_message(chat_id=update.effective_chat.id, text=output_text)
-
     elif 'Bot_program_event' in data:
         query = update.callback_query
         data = query.data
@@ -304,7 +292,6 @@ async def inline_button(update, context):
             if name is None:
                 name = "Названия нет"
 
-            print(event.get('speakers'))
             lectors = create_lectors_text(event.get('speakers'))
 
             description = event.get("description")
