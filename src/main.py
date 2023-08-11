@@ -39,18 +39,18 @@ CAMP_RULES_TEXT = """
 """
 
 LANDSCAPE_OBJECTS_DICT = {
-    'text_camp': 'лагерь',
-    'text_grosery': "гастрономия",
-    'text_main_stage': 'main stage',
-    'text_amphitheater': 'амфитеатр',
-    'text_backstage': 'закулисье',
-    }
+    "text_camp": "лагерь",
+    "text_grosery": "гастрономия",
+    "text_main_stage": "main stage",
+    "text_amphitheater": "амфитеатр",
+    "text_backstage": "закулисье",
+}
 
 PROGRAM_LOCATION_DICT = {
-    'program_main_stage': 'main stage',
-    'program_amphitheater': 'амфитеатр',
-    'program_backstage': 'закулисье'
-    }
+    "program_main_stage": "main stage",
+    "program_amphitheater": "амфитеатр",
+    "program_backstage": "закулисье",
+}
 
 MAIN_KEYBOARD = ReplyKeyboardMarkup(
     keyboard=[
@@ -67,23 +67,32 @@ MAIN_KEYBOARD = ReplyKeyboardMarkup(
     one_time_keyboard=False,
 )
 
-PROGRAM_KEYBOARD = InlineKeyboardMarkup([
+PROGRAM_KEYBOARD = InlineKeyboardMarkup(
+    [
         [InlineKeyboardButton("main stage", callback_data="program_main_stage")],
         [InlineKeyboardButton("амфитеатр", callback_data="program_amphitheater")],
         [InlineKeyboardButton("закулисье", callback_data="program_backstage")],
-    ])
+    ]
+)
 
-LANDSCAPE_KEYBOARD = InlineKeyboardMarkup([
+LANDSCAPE_KEYBOARD = InlineKeyboardMarkup(
+    [
         [InlineKeyboardButton("лагерь", callback_data="text_camp")],
         [InlineKeyboardButton("гастрономия", callback_data="text_grosery")],
         [InlineKeyboardButton("main stage", callback_data="text_main_stage")],
         [InlineKeyboardButton("амфитеатр", callback_data="text_amphitheater")],
         [InlineKeyboardButton("закулисье", callback_data="text_backstage")],
-    ])
+    ]
+)
 
-TRANSFER_KEYBOARD = InlineKeyboardMarkup([
-    [InlineKeyboardButton("туда", callback_data="forward_trip_jpg"), InlineKeyboardButton("обратно", callback_data="back_trip_jpg")]
-])
+TRANSFER_KEYBOARD = InlineKeyboardMarkup(
+    [
+        [
+            InlineKeyboardButton("туда", callback_data="forward_trip_jpg"),
+            InlineKeyboardButton("обратно", callback_data="back_trip_jpg"),
+        ]
+    ]
+)
 
 
 async def start(update, context):
@@ -92,6 +101,21 @@ async def start(update, context):
         text="Работа с ботом осуществляется через кнопки",
         reply_markup=MAIN_KEYBOARD,
     )
+
+
+def create_lectors_text(lectors_list):
+    output_message = ""
+
+    if lectors_list is None:
+        return "нет лекторов"
+
+    if isinstance(lectors_list, list):
+        for lector in lectors_list:
+            output_message += lector["name"] + ", "
+    else:
+        output_message += lectors_list["name"]
+
+    return output_message
 
 
 async def get_map(update, context):
@@ -105,9 +129,7 @@ async def get_map(update, context):
 
     if photo_data_jpg is not None:
         photo_map = photo_data_jpg[1]
-        await context.bot.send_photo(
-            chat_id=update.effective_chat.id, photo=photo_map
-        )
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_map)
 
     if photo_data_pdf is not None:
         file_name, photo_map = photo_data_pdf
@@ -123,15 +145,14 @@ async def get_current_events(update, context):
     current_events = mongo_ops.get_events_by_user_time(user_time)
     if current_events is None:
         await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="не могу загрузить текущие события."
+            chat_id=update.effective_chat.id, text="не могу загрузить текущие события."
         )
         return
 
     if len(current_events) == 0:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f"Сейчас ничего не происходит: your time: {user_time}",
+            text=f"Сейчас ничего не происходит.",
         )
         return
 
@@ -139,12 +160,14 @@ async def get_current_events(update, context):
     for event in current_events:
         event_name = event.get("name")
         if event_name is not None:
-            buttons.append([InlineKeyboardButton(text=event_name, callback_data=event_name)])
+            buttons.append(
+                [InlineKeyboardButton(text=event_name, callback_data=event_name[:10])]
+            )
 
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="Сейчас происходит:",
-        reply_markup=InlineKeyboardMarkup(buttons)
+        reply_markup=InlineKeyboardMarkup(buttons),
     )
 
 
@@ -170,11 +193,11 @@ async def get_programm(update, context):
             document=photo_program,
             filename=file_name,
         )
-    
+
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="Подробная информация по каждой площадке:",
-        reply_markup=PROGRAM_KEYBOARD
+        reply_markup=PROGRAM_KEYBOARD,
     )
 
 
@@ -189,9 +212,7 @@ async def get_music(update, context):
 
     if photo_data_jpg is not None:
         photo_jpg = photo_data_jpg[1]
-        await context.bot.send_photo(
-            chat_id=update.effective_chat.id, photo=photo_jpg
-        )
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_jpg)
 
     if photo_data_pdf is not None:
         file_name, photo_music = photo_data_pdf
@@ -245,34 +266,87 @@ async def inline_button(update, context):
     await query.answer()
 
     if data in LANDSCAPE_OBJECTS_DICT:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"landscape {data}")
-    
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text=f"landscape {data}"
+        )
+
     elif data in PROGRAM_LOCATION_DICT:
         events = mongo_ops.get_events_by_location(PROGRAM_LOCATION_DICT.get(data))
         if events is None:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=f'не могу загрузить программу для: {data}')
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=f"не могу загрузить программу для: {data}",
+            )
             return
-
+        buttons = []
         for event in events:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=f'{event.get("name")}')
+            event_name = event.get("name")
+            event_id = event.get("_id")
+
+            if event_name is not None:
+                buttons.append(
+                    [
+                        InlineKeyboardButton(
+                            text=f"{event_name}",
+                            callback_data="Bot_program_event!" + str(event_id),
+                        )
+                    ]
+                )
+
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"Программа для: {PROGRAM_LOCATION_DICT[data]}",
+            reply_markup=InlineKeyboardMarkup(buttons),
+        )
+
+    elif "Bot_program_event" in data:
+        query = update.callback_query
+        data = query.data
+        await query.answer()
+
+        event = mongo_ops.get_event_by_id(data[18:])
+
+        if event is not None:
+            name = event.get("name")
+            if name is None:
+                name = "Названия нет"
+
+            lectors = create_lectors_text(event.get("speakers"))
+
+            description = event.get("description")
+            if description is None:
+                description = "Описания нет"
+            time_start = event.get("start_time")
+            time_end = event.get("end_time")
+
+            print(time_start.strftime("%H:%M"))
+
+            output_text = f'<b>Название</b>: {name}\n\n<b>Лектор</b>: {lectors}\n\n<b>Описание</b>: {description}\n\n<b>Время</b>: {time_start.strftime("%H:%M")} - {time_end.strftime("%H:%M")}'
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text=output_text, parse_mode="html"
+            )
 
     else:
-        file_data = mongo_ops.get_file_by_name(data.lower())
+        file_data = mongo_ops.get_file_by_name(data)
         if file_data is not None:
             file_name, presentation = file_data
-            await context.bot.send_document(chat_id=update.effective_chat.id,
-                                            document=presentation,
-                                            filename=file_name,
-        )
+            await context.bot.send_document(
+                chat_id=update.effective_chat.id,
+                document=presentation,
+                filename=file_name,
+            )
 
 
 async def announcement(update, context):
     if not update.effective_chat.id in ADMIN_IDS:
-        return 
+        return
 
     admin_announcement = update.message.text
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Сообщение: '{admin_announcement}' было добавлено в объявления")
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=f"Сообщение: '{admin_announcement}' было добавлено в объявления",
+    )
     IMPORTANT_INFO_TEXT.append(admin_announcement)
 
 
