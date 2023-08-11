@@ -60,7 +60,7 @@ MAIN_KEYBOARD = ReplyKeyboardMarkup(
             KeyboardButton(text="правила лагеря"),
             KeyboardButton(text="ландшафтные объекты"),
         ],
-        [KeyboardButton(text="важное"), KeyboardButton(text="трансфер")],
+        [KeyboardButton(text="объявление от организаторов"), KeyboardButton(text="трансфер")],
     ],
     resize_keyboard=True,
     is_persistent=True,
@@ -380,7 +380,7 @@ def main():
         )
     )
     app.add_handler(
-        MessageHandler(filters.TEXT & filters.Regex("^важное$"), get_important_info)
+        MessageHandler(filters.TEXT & filters.Regex("^объявление от организаторов$"), get_important_info)
     )
     app.add_handler(
         MessageHandler(filters.TEXT & filters.Regex("^трансфер$"), get_transfer_info)
